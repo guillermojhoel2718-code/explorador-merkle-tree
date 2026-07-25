@@ -434,38 +434,135 @@ impl MerkleApp {
         };
 
         if self.dark_mode {
-            // Slint Dashboard Dark Palette (#0b0f19 background, #151c2c cards, #84cc16 neon accent)
-            visuals.window_fill = egui::Color32::from_rgb(11, 15, 25);
-            visuals.panel_fill = egui::Color32::from_rgb(11, 15, 25);
-            visuals.extreme_bg_color = egui::Color32::from_rgb(15, 23, 42);
-            visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgb(21, 28, 44);
-            visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(42, 54, 79));
-            visuals.widgets.inactive.bg_fill = egui::Color32::from_rgb(21, 28, 44);
-            visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(30, 41, 59);
-            visuals.widgets.active.bg_fill = egui::Color32::from_rgb(139, 92, 246);
-            visuals.widgets.inactive.rounding = egui::Rounding::same(8.0_f32);
-            visuals.widgets.hovered.rounding = egui::Rounding::same(8.0_f32);
-            visuals.widgets.active.rounding = egui::Rounding::same(8.0_f32);
-            visuals.window_rounding = egui::Rounding::same(12.0_f32);
-            visuals.menu_rounding = egui::Rounding::same(12.0_f32);
+            // High-End Translucent Dark Glassmorphism
+            visuals.window_fill = egui::Color32::from_rgba_unmultiplied(15, 23, 42, 215);
+            visuals.panel_fill = egui::Color32::from_rgba_unmultiplied(18, 26, 45, 205);
+            visuals.extreme_bg_color = egui::Color32::from_rgba_unmultiplied(12, 18, 32, 220);
+            visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgba_unmultiplied(26, 36, 60, 190);
+            visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(255, 255, 255, 40));
+            visuals.widgets.inactive.bg_fill = egui::Color32::from_rgba_unmultiplied(30, 42, 68, 195);
+            visuals.widgets.inactive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(255, 255, 255, 35));
+            visuals.widgets.hovered.bg_fill = egui::Color32::from_rgba_unmultiplied(45, 62, 98, 220);
+            visuals.widgets.active.bg_fill = egui::Color32::from_rgba_unmultiplied(37, 99, 235, 230);
+            visuals.widgets.inactive.rounding = egui::Rounding::same(16.0_f32);
+            visuals.widgets.hovered.rounding = egui::Rounding::same(16.0_f32);
+            visuals.widgets.active.rounding = egui::Rounding::same(16.0_f32);
+            visuals.window_rounding = egui::Rounding::same(18.0_f32);
+            visuals.menu_rounding = egui::Rounding::same(16.0_f32);
         } else {
-            // Clean Scrapbook / Notion Light Palette (#f8fafc background, white cards, soft rounded buttons)
-            visuals.window_fill = egui::Color32::from_rgb(248, 250, 252);
-            visuals.panel_fill = egui::Color32::from_rgb(255, 255, 255);
-            visuals.extreme_bg_color = egui::Color32::from_rgb(241, 245, 249);
-            visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgb(255, 255, 255);
-            visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(226, 232, 240));
-            visuals.widgets.inactive.bg_fill = egui::Color32::from_rgb(241, 245, 249);
-            visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(226, 232, 240);
-            visuals.widgets.active.bg_fill = egui::Color32::from_rgb(203, 213, 225);
-            visuals.widgets.inactive.rounding = egui::Rounding::same(8.0_f32);
-            visuals.widgets.hovered.rounding = egui::Rounding::same(8.0_f32);
-            visuals.widgets.active.rounding = egui::Rounding::same(8.0_f32);
-            visuals.window_rounding = egui::Rounding::same(12.0_f32);
-            visuals.menu_rounding = egui::Rounding::same(12.0_f32);
+            // High-End Translucent Titanium White Glassmorphism (Matching prompt & reference image)
+            visuals.window_fill = egui::Color32::from_rgba_unmultiplied(255, 255, 255, 215);
+            visuals.panel_fill = egui::Color32::from_rgba_unmultiplied(252, 253, 255, 205);
+            visuals.extreme_bg_color = egui::Color32::from_rgba_unmultiplied(241, 245, 249, 215);
+            visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgba_unmultiplied(255, 255, 255, 220);
+            visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(255, 255, 255, 230));
+            visuals.widgets.inactive.bg_fill = egui::Color32::from_rgba_unmultiplied(241, 245, 249, 210);
+            visuals.widgets.inactive.bg_stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(255, 255, 255, 240));
+            visuals.widgets.hovered.bg_fill = egui::Color32::from_rgba_unmultiplied(226, 232, 240, 230);
+            visuals.widgets.active.bg_fill = egui::Color32::from_rgba_unmultiplied(203, 213, 225, 240);
+            visuals.widgets.inactive.rounding = egui::Rounding::same(16.0_f32);
+            visuals.widgets.hovered.rounding = egui::Rounding::same(16.0_f32);
+            visuals.widgets.active.rounding = egui::Rounding::same(16.0_f32);
+            visuals.window_rounding = egui::Rounding::same(18.0_f32);
+            visuals.menu_rounding = egui::Rounding::same(16.0_f32);
         }
 
         ctx.set_visuals(visuals);
+    }
+
+    fn render_glassmorphic_background(painter: &egui::Painter, rect: egui::Rect, dark_mode: bool, time: f32) {
+        // 1. Soft Studio Gradient Fill (titanium white / light grey studio)
+        let bg_color = if dark_mode {
+            egui::Color32::from_rgb(13, 18, 29)
+        } else {
+            egui::Color32::from_rgb(244, 245, 248)
+        };
+
+        // Draw studio background rectangle
+        painter.rect_filled(rect, 0.0, bg_color);
+
+        // 2. Subtle soft volumetric light rays pierce diagonally
+        let ray_color = if dark_mode {
+            egui::Color32::from_white_alpha(7)
+        } else {
+            egui::Color32::from_white_alpha(35)
+        };
+
+        let w = rect.width();
+        let light_origin = egui::pos2(rect.max.x - w * 0.15, rect.min.y - 60.0);
+
+        for i in 0..4 {
+            let angle_offset = (i as f32) * 0.22 + (time * 0.05).sin() * 0.03;
+            let ray_p1 = egui::pos2(light_origin.x - w * (0.28 + angle_offset), rect.max.y);
+            let ray_p2 = egui::pos2(light_origin.x - w * (0.08 + angle_offset), rect.max.y);
+
+            let shape = egui::Shape::convex_polygon(
+                vec![light_origin, ray_p1, ray_p2],
+                ray_color,
+                egui::Stroke::NONE,
+            );
+            painter.add(shape);
+        }
+
+        // 3. Weightless floating 3D translucent crystal spheres & bokeh geometry (Antigravity aesthetic)
+        let sphere_positions = [
+            (0.18, 0.25, 75.0, 0.35),
+            (0.82, 0.20, 105.0, 0.22),
+            (0.12, 0.75, 120.0, 0.15),
+            (0.88, 0.70, 85.0, 0.30),
+            (0.48, 0.15, 50.0, 0.45),
+            (0.55, 0.85, 90.0, 0.18),
+            (0.35, 0.60, 40.0, 0.55),
+        ];
+
+        for (idx, (xr, yr, r, speed)) in sphere_positions.iter().enumerate() {
+            let float_y = (time * speed + idx as f32 * 1.5).sin() * 14.0;
+            let float_x = (time * speed * 0.7 + idx as f32 * 2.1).cos() * 10.0;
+
+            let cx = rect.min.x + rect.width() * xr + float_x;
+            let cy = rect.min.y + rect.height() * yr + float_y;
+            let center = egui::pos2(cx, cy);
+
+            let fill_alpha = if dark_mode { 12 } else { 25 };
+            let stroke_alpha = if dark_mode { 30 } else { 55 };
+
+            // Translucent glass body fill
+            painter.circle_filled(
+                center,
+                *r,
+                if dark_mode {
+                    egui::Color32::from_white_alpha(fill_alpha)
+                } else {
+                    egui::Color32::from_rgba_unmultiplied(255, 255, 255, fill_alpha)
+                },
+            );
+
+            // Soft glass edge stroke (bokeh rim highlight)
+            painter.circle_stroke(
+                center,
+                *r,
+                egui::Stroke::new(
+                    1.5_f32,
+                    if dark_mode {
+                        egui::Color32::from_white_alpha(stroke_alpha)
+                    } else {
+                        egui::Color32::from_rgba_unmultiplied(255, 255, 255, stroke_alpha)
+                    },
+                ),
+            );
+
+            // Inner specular reflection highlight dot
+            let highlight_pos = center - egui::vec2(r * 0.35, r * 0.35);
+            painter.circle_filled(
+                highlight_pos,
+                r * 0.18,
+                if dark_mode {
+                    egui::Color32::from_white_alpha(40)
+                } else {
+                    egui::Color32::from_rgba_unmultiplied(255, 255, 255, 95)
+                },
+            );
+        }
     }
 }
 
@@ -1251,6 +1348,9 @@ impl MerkleApp {
 
             self.zoom_scale = new_zoom;
         }
+
+        // Render 3D Antigravity Studio Glassmorphism Background
+        Self::render_glassmorphic_background(&painter, response.rect, self.dark_mode, ctx.input(|i| i.time) as f32);
 
         // Draw Canvas Background Pattern (Dot Grid) for Depth & Visual Richness
         let grid_spacing = 32.0_f32 * self.zoom_scale;
