@@ -1263,14 +1263,14 @@ impl MerkleApp {
             painter.rect_filled(
                 screen_rect,
                 0.0,
-                egui::Color32::from_black_alpha(120),
+                egui::Color32::from_black_alpha(135),
             );
 
             egui::Window::new("¡Bienvenido/a!")
                 .collapsible(false)
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
-                .fixed_size(egui::vec2(440.0, 480.0))
+                .fixed_size(egui::vec2(450.0, 490.0))
                 .frame(
                     egui::Frame::window(&ctx.style())
                         .fill(if self.dark_mode {
@@ -1284,7 +1284,7 @@ impl MerkleApp {
                 )
                 .show(ctx, |ui| {
                     ui.vertical_centered(|ui| {
-                        // Image in exact aspect ratio
+                        // Avatar image maintaining aspect ratio
                         ui.add(
                             egui::Image::new(egui::include_image!("../Resources/estatico.png"))
                                 .max_height(140.0_f32)
@@ -1659,9 +1659,9 @@ impl MerkleApp {
                     } else if is_selected {
                         (egui::Color32::from_rgb(239, 68, 68), 3.0_f32)
                     } else if !is_match && has_active_filter {
-                        (egui::Color32::from_rgba_unmultiplied(160, 160, 160, 45), 1.0_f32)
+                        (egui::Color32::TRANSPARENT, 0.0_f32) // No border line for filtered-out items
                     } else if is_match && has_active_filter {
-                        (egui::Color32::from_rgb(245, 158, 11), 3.0_f32)
+                        (egui::Color32::from_rgb(245, 158, 11), 3.0_f32) // Amber highlight for matching items
                     } else {
                         (ext_border, 2.0_f32)
                     };
@@ -1669,11 +1669,7 @@ impl MerkleApp {
                     let fill_color = if is_drop_target {
                         egui::Color32::from_rgb(219, 234, 254) // Target folder glowing fill
                     } else if !is_match && has_active_filter {
-                        if self.dark_mode {
-                            egui::Color32::from_rgba_unmultiplied(15, 15, 15, 60)
-                        } else {
-                            egui::Color32::from_rgba_unmultiplied(225, 230, 235, 70)
-                        }
+                        ext_fill.linear_multiply(0.20_f32) // Pure low opacity without changing color tone
                     } else {
                         ext_fill
                     };
@@ -1751,16 +1747,18 @@ impl MerkleApp {
                     }
 
                     // Render Soft Card Shadow (Notion Scrapbook Style)
-                    let shadow_rect = rect.translate(egui::vec2(2.5_f32 * self.zoom_scale, 3.5_f32 * self.zoom_scale));
-                    painter.rect_filled(
-                        shadow_rect,
-                        10.0_f32 * self.zoom_scale,
-                        if self.dark_mode {
-                            egui::Color32::from_black_alpha(45)
-                        } else {
-                            egui::Color32::from_black_alpha(25)
-                        },
-                    );
+                    if is_match || !has_active_filter {
+                        let shadow_rect = rect.translate(egui::vec2(2.5_f32 * self.zoom_scale, 3.5_f32 * self.zoom_scale));
+                        painter.rect_filled(
+                            shadow_rect,
+                            10.0_f32 * self.zoom_scale,
+                            if self.dark_mode {
+                                egui::Color32::from_black_alpha(45)
+                            } else {
+                                egui::Color32::from_black_alpha(25)
+                            },
+                        );
+                    }
 
                     // Render Main Full-Colored Card Block Rectangle
                     painter.rect(
@@ -1777,6 +1775,11 @@ impl MerkleApp {
                             rect.min,
                             egui::vec2(rect.width(), header_h),
                         );
+                        let sticker_color = if !is_match && has_active_filter {
+                            ext_border.linear_multiply(0.20_f32)
+                        } else {
+                            ext_border
+                        };
                         painter.rect_filled(
                             header_rect,
                             egui::Rounding {
@@ -1785,7 +1788,7 @@ impl MerkleApp {
                                 sw: 0.0,
                                 se: 0.0,
                             },
-                            ext_border,
+                            sticker_color,
                         );
                     }
 
@@ -1818,7 +1821,7 @@ impl MerkleApp {
                         let text_color = if is_drop_target {
                             egui::Color32::from_rgb(37, 99, 235)
                         } else if !is_match && has_active_filter {
-                            egui::Color32::from_rgba_unmultiplied(130, 130, 130, 80)
+                            ext_text.linear_multiply(0.30_f32)
                         } else {
                             ext_text
                         };
