@@ -1265,19 +1265,12 @@ impl MerkleApp {
             return;
         }
 
-        let screen_rect = ctx.screen_rect();
-        let painter = ctx.layer_painter(egui::LayerId::new(egui::Order::Foreground, egui::Id::new("welcome_overlay_layer")));
-        painter.rect_filled(
-            screen_rect,
-            0.0,
-            egui::Color32::from_black_alpha(135),
-        );
-
         egui::Window::new("¡Bienvenido/a!")
             .collapsible(false)
             .resizable(false)
+            .title_bar(false)
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
-            .fixed_size(egui::vec2(450.0, 490.0))
+            .fixed_size(egui::vec2(450.0, 480.0))
             .frame(
                 egui::Frame::window(&ctx.style())
                     .fill(if self.dark_mode {
@@ -1287,10 +1280,21 @@ impl MerkleApp {
                     })
                     .rounding(20.0)
                     .inner_margin(egui::Margin::same(24.0))
-                    .stroke(egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(37, 99, 235))),
+                    .stroke(egui::Stroke::new(2.0_f32, egui::Color32::from_rgb(37, 99, 235)))
+                    .shadow(egui::epaint::Shadow {
+                        offset: egui::vec2(0.0, 8.0),
+                        blur: 24.0_f32,
+                        spread: 0.0_f32,
+                        color: if self.dark_mode {
+                            egui::Color32::from_black_alpha(120)
+                        } else {
+                            egui::Color32::from_black_alpha(45)
+                        },
+                    }),
             )
             .show(ctx, |ui| {
                 ui.vertical_centered(|ui| {
+                    ui.add_space(6.0_f32);
                     // Avatar image maintaining aspect ratio
                     ui.add(
                         egui::Image::new(egui::include_image!("../Resources/estatico.png"))
