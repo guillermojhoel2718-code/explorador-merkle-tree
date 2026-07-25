@@ -109,10 +109,15 @@ pub struct MerkleApp {
 
     // Pending Move Confirmation Dialog
     pending_move_confirmation: Option<(usize, usize)>,
+
+    // Startup Welcome Modal Dialog
+    show_welcome_dialog: bool,
 }
 
 impl MerkleApp {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        egui_extras::install_image_loaders(&_cc.egui_ctx);
+
         let (tx, rx) = channel();
         let (watcher_tx, watcher_rx) = channel();
 
@@ -164,6 +169,7 @@ impl MerkleApp {
             diff_result: None,
             history_log_lines: history_lines,
             pending_move_confirmation: None,
+            show_welcome_dialog: true,
         }
     }
 
@@ -835,18 +841,18 @@ impl eframe::App for MerkleApp {
 
         // --- TOP PANEL / HEADER ---
         egui::TopBottomPanel::top("header")
-            .frame(egui::Frame::side_top_panel(&ctx.style()).inner_margin(egui::Margin::symmetric(16.0_f32, 12.0_f32)))
+            .frame(egui::Frame::side_top_panel(&ctx.style()).inner_margin(egui::Margin::symmetric(16.0_f32, 14.0_f32)))
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
                     // Logo & App Name
                     ui.label(
-                        egui::RichText::new("❖ Merkle Audit Explorer")
+                        egui::RichText::new("🛡 Merkle Audit Explorer")
                             .font(egui::FontId::proportional(18.0_f32))
                             .strong()
                             .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(15, 23, 42) }),
                     );
 
-                    ui.add_space(12.0_f32);
+                    ui.add_space(14.0_f32);
 
                     // Navigation Tabs (Strictly 3 Tabs: Visual Explorer, Traceability, Settings)
                     ui.horizontal(|ui| {
@@ -864,7 +870,7 @@ impl eframe::App for MerkleApp {
                             self.active_tab = AppTab::Traceability;
                         }
                         if ui
-                            .selectable_label(self.active_tab == AppTab::Settings, "⚙️ Ajustes")
+                            .selectable_label(self.active_tab == AppTab::Settings, "⚙ Ajustes")
                             .clicked()
                         {
                             self.active_tab = AppTab::Settings;
@@ -873,7 +879,7 @@ impl eframe::App for MerkleApp {
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         // Dark/Light Mode Toggle
-                        let theme_btn = if self.dark_mode { "☀️ Light" } else { "🌙 Dark" };
+                        let theme_btn = if self.dark_mode { "☀ Light" } else { "🌙 Dark" };
                         if ui.button(theme_btn).clicked() {
                             self.dark_mode = !self.dark_mode;
                         }
@@ -906,11 +912,11 @@ impl eframe::App for MerkleApp {
                                     }
 
                                     if self.watcher_active {
-                                        if ui.button("⏹️ Detener Monitoreo").clicked() {
+                                        if ui.button("⏹ Detener Monitoreo").clicked() {
                                             self.stop_watcher();
                                         }
                                     } else if let Some(ref path) = self.current_path.clone() {
-                                        if ui.button("👁️ Monitorear Cambios").clicked() {
+                                        if ui.button("👁 Monitorear Cambios").clicked() {
                                             self.start_watcher(path.clone());
                                         }
                                     }
@@ -1249,26 +1255,133 @@ impl MerkleApp {
             self.pending_move_confirmation = None;
             self.set_notification("ℹ️ Traslado de archivo cancelado".to_string());
         }
+
+        // --- STARTUP WELCOME MODAL OVERLAY ---
+        if self.show_welcome_dialog {
+            let screen_rect = ctx.screen_rect();
+            let painter = ctx.layer_painter(egui::LayerId::new(egui::Order::Foreground, egui::Id::new("welcome_overlay_layer")));
+            painter.rect_filled(
+                screen_rect,
+                0.0,
+                egui::Color32::from_black_alpha(120),
+            );
+
+            egui::Window::new("¡Bienvenido/a!")
+                .collapsible(false)
+                .resizable(false)
+                .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+                .fixed_size(egui::vec2(440.0, 480.0))
+                .frame(
+                    egui::Frame::window(&ctx.style())
+                        .fill(if self.dark_mode {
+                            egui::Color32::from_rgb(18, 26, 45)
+                        } else {
+                            egui::Color32::WHITE
+                        })
+                        .rounding(20.0)
+                        .inner_margin(egui::Margin::same(24.0))
+                        .stroke(egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(37, 99, 235))),
+                )
+                .show(ctx, |ui| {
+                    ui.vertical_centered(|ui| {
+                        // Image in exact aspect ratio
+                        ui.add(
+                            egui::Image::new(egui::include_image!("../Resources/estatico.png"))
+                                .max_height(140.0_f32)
+                                .fit_to_exact_size(egui::vec2(105.0, 140.0))
+                                .rounding(12.0),
+                        );
+
+                        ui.add_space(14.0_f32);
+
+                        ui.label(
+                            egui::RichText::new("¡Bienvenido/a a una nueva forma de explorar tus datos!")
+                                .font(egui::FontId::proportional(16.5_f32))
+                                .strong()
+                                .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(15, 23, 42) }),
+                        );
+
+                        ui.add_space(8.0_f32);
+
+                        ui.label(
+                            egui::RichText::new("Diseñado y desarrollado por Guillermo Jhoel HG.")
+                                .font(egui::FontId::proportional(13.0_f32))
+                                .italics()
+                                .color(egui::Color32::from_rgb(37, 99, 235)),
+                        );
+
+                        ui.add_space(12.0_f32);
+
+                        ui.label(
+                            egui::RichText::new(
+                                "Esta herramienta fue creada para darte velocidad, trazabilidad y control visual total sobre tus archivos. Si te es de utilidad en tu día a día, ¡te agradecería enormemente que la compartas!"
+                            )
+                            .font(egui::FontId::proportional(13.5_f32))
+                            .color(if self.dark_mode { egui::Color32::from_rgb(203, 213, 225) } else { egui::Color32::from_rgb(71, 85, 105) }),
+                        );
+
+                        ui.add_space(20.0_f32);
+
+                        if ui
+                            .add_sized(
+                                [240.0, 42.0],
+                                egui::Button::new(
+                                    egui::RichText::new("🚀 Entendido y Comenzar")
+                                        .font(egui::FontId::proportional(15.0_f32))
+                                        .strong()
+                                        .color(egui::Color32::WHITE),
+                                )
+                                .fill(egui::Color32::from_rgb(37, 99, 235))
+                                .rounding(21.0),
+                            )
+                            .clicked()
+                        {
+                            self.show_welcome_dialog = false;
+                        }
+                    });
+                });
+        }
     }
 
     fn render_explorer_tab(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
         if self.nodes.is_empty() {
-            ui.centered_and_justified(|ui| {
-                ui.vertical_centered(|ui| {
-                    ui.label(
-                        egui::RichText::new("❖ Merkle Audit Explorer")
-                            .font(egui::FontId::proportional(26.0_f32))
-                            .strong()
-                            .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(30, 41, 59) }),
-                    );
-                    ui.add_space(8.0_f32);
-                    ui.label("Selecciona una carpeta para construir el árbol de integridad Merkle.");
-                    ui.add_space(16.0_f32);
-                    if ui.button("📁 Seleccionar Carpeta").clicked() {
-                        if let Some(path) = rfd::FileDialog::new().pick_folder() {
-                            self.load_directory(path);
+            let (response, painter) = ui.allocate_painter(ui.available_size(), egui::Sense::hover());
+            Self::render_glassmorphic_background(&painter, response.rect, self.dark_mode, ctx.input(|i| i.time) as f32);
+
+            ui.allocate_ui_at_rect(response.rect, |ui| {
+                ui.centered_and_justified(|ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label(
+                            egui::RichText::new("🛡 Merkle Audit Explorer")
+                                .font(egui::FontId::proportional(28.0_f32))
+                                .strong()
+                                .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(30, 41, 59) }),
+                        );
+                        ui.add_space(10.0_f32);
+                        ui.label(
+                            egui::RichText::new("Selecciona una carpeta para construir el árbol de integridad Merkle.")
+                                .font(egui::FontId::proportional(15.0_f32)),
+                        );
+                        ui.add_space(20.0_f32);
+                        if ui
+                            .add_sized(
+                                [220.0, 44.0],
+                                egui::Button::new(
+                                    egui::RichText::new("📁 Seleccionar Carpeta")
+                                        .font(egui::FontId::proportional(16.0_f32))
+                                        .strong()
+                                        .color(egui::Color32::WHITE),
+                                )
+                                .fill(egui::Color32::from_rgb(37, 99, 235))
+                                .rounding(22.0),
+                            )
+                            .clicked()
+                        {
+                            if let Some(path) = rfd::FileDialog::new().pick_folder() {
+                                self.load_directory(path);
+                            }
                         }
-                    }
+                    });
                 });
             });
             return;
