@@ -645,11 +645,11 @@ pub fn get_file_icon(node: &Node) -> &'static str {
         "pdf" => "📕",
         "doc" | "docx" | "txt" | "md" | "log" | "rtf" => "📝",
         "rs" | "js" | "ts" | "py" | "json" | "html" | "css" | "toml" | "yaml" | "xml" | "cpp" | "c" => "💻",
-        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" | "bmp" => "🖼️",
+        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" | "bmp" => "🖼",
         "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" => "📦",
         "mp3" | "wav" | "flac" | "ogg" => "🎵",
         "mp4" | "mkv" | "avi" | "mov" | "webm" => "🎬",
-        "exe" | "bat" | "cmd" | "sh" | "msi" => "⚙️",
+        "exe" | "bat" | "cmd" | "sh" | "msi" => "⚙",
         _ => "📄",
     }
 }
@@ -985,7 +985,7 @@ impl eframe::App for MerkleApp {
                     }
                     AppTab::Settings => {
                         ui.horizontal(|ui| {
-                            ui.label("⚙️ Preferencias y Umbrales de Sistema");
+                            ui.label("⚙ Preferencias y Umbrales de Sistema");
                         });
                     }
                 }
@@ -1032,17 +1032,17 @@ impl eframe::App for MerkleApp {
                     ui.label(egui::RichText::new("Antigüedad:").small());
                     ui.colored_label(
                         self.color_red,
-                        format!("■ <{}h (Reciente)", self.threshold_red_hours),
+                        format!("● <{}h (Reciente)", self.threshold_red_hours),
                     );
                     ui.colored_label(
                         self.color_yellow,
-                        format!("■ <{}h (Medio)", self.threshold_yellow_hours),
+                        format!("● <{}h (Medio)", self.threshold_yellow_hours),
                     );
                     ui.colored_label(
                         self.color_green,
-                        format!("■ <{}d (Estable)", self.threshold_green_days),
+                        format!("● <{}d (Estable)", self.threshold_green_days),
                     );
-                    ui.colored_label(self.color_old, "■ Antiguo");
+                    ui.colored_label(self.color_old, "● Antiguo");
 
                     ui.separator();
                     ui.label(format!("Nodos Totales: {}", self.nodes.len()));
@@ -1165,6 +1165,9 @@ impl eframe::App for MerkleApp {
         // Render Pending File Move Confirmation Dialog Window
         self.render_move_confirmation_dialog(ctx);
 
+        // Render Startup Welcome Modal Overlay
+        self.render_welcome_dialog(ctx);
+
         // Request repaint for animated particles along Merkle tree connections
         ctx.request_repaint_after(Duration::from_millis(33));
     }
@@ -1253,94 +1256,97 @@ impl MerkleApp {
             self.move_node_to_folder(src_id, dest_id);
         } else if cancel_action {
             self.pending_move_confirmation = None;
-            self.set_notification("ℹ️ Traslado de archivo cancelado".to_string());
+            self.set_notification("ℹ Traslado de archivo cancelado".to_string());
+        }
+    }
+
+    fn render_welcome_dialog(&mut self, ctx: &egui::Context) {
+        if !self.show_welcome_dialog {
+            return;
         }
 
-        // --- STARTUP WELCOME MODAL OVERLAY ---
-        if self.show_welcome_dialog {
-            let screen_rect = ctx.screen_rect();
-            let painter = ctx.layer_painter(egui::LayerId::new(egui::Order::Foreground, egui::Id::new("welcome_overlay_layer")));
-            painter.rect_filled(
-                screen_rect,
-                0.0,
-                egui::Color32::from_black_alpha(135),
-            );
+        let screen_rect = ctx.screen_rect();
+        let painter = ctx.layer_painter(egui::LayerId::new(egui::Order::Foreground, egui::Id::new("welcome_overlay_layer")));
+        painter.rect_filled(
+            screen_rect,
+            0.0,
+            egui::Color32::from_black_alpha(135),
+        );
 
-            egui::Window::new("¡Bienvenido/a!")
-                .collapsible(false)
-                .resizable(false)
-                .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
-                .fixed_size(egui::vec2(450.0, 490.0))
-                .frame(
-                    egui::Frame::window(&ctx.style())
-                        .fill(if self.dark_mode {
-                            egui::Color32::from_rgb(18, 26, 45)
-                        } else {
-                            egui::Color32::WHITE
-                        })
-                        .rounding(20.0)
-                        .inner_margin(egui::Margin::same(24.0))
-                        .stroke(egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(37, 99, 235))),
-                )
-                .show(ctx, |ui| {
-                    ui.vertical_centered(|ui| {
-                        // Avatar image maintaining aspect ratio
-                        ui.add(
-                            egui::Image::new(egui::include_image!("../Resources/estatico.png"))
-                                .max_height(140.0_f32)
-                                .fit_to_exact_size(egui::vec2(105.0, 140.0))
-                                .rounding(12.0),
-                        );
+        egui::Window::new("¡Bienvenido/a!")
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+            .fixed_size(egui::vec2(450.0, 490.0))
+            .frame(
+                egui::Frame::window(&ctx.style())
+                    .fill(if self.dark_mode {
+                        egui::Color32::from_rgb(18, 26, 45)
+                    } else {
+                        egui::Color32::WHITE
+                    })
+                    .rounding(20.0)
+                    .inner_margin(egui::Margin::same(24.0))
+                    .stroke(egui::Stroke::new(1.5_f32, egui::Color32::from_rgb(37, 99, 235))),
+            )
+            .show(ctx, |ui| {
+                ui.vertical_centered(|ui| {
+                    // Avatar image maintaining aspect ratio
+                    ui.add(
+                        egui::Image::new(egui::include_image!("../Resources/estatico.png"))
+                            .max_height(140.0_f32)
+                            .fit_to_exact_size(egui::vec2(105.0, 140.0))
+                            .rounding(12.0),
+                    );
 
-                        ui.add_space(14.0_f32);
+                    ui.add_space(14.0_f32);
 
-                        ui.label(
-                            egui::RichText::new("¡Bienvenido/a a una nueva forma de explorar tus datos!")
-                                .font(egui::FontId::proportional(16.5_f32))
-                                .strong()
-                                .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(15, 23, 42) }),
-                        );
+                    ui.label(
+                        egui::RichText::new("¡Bienvenido/a a una nueva forma de explorar tus datos!")
+                            .font(egui::FontId::proportional(16.5_f32))
+                            .strong()
+                            .color(if self.dark_mode { egui::Color32::WHITE } else { egui::Color32::from_rgb(15, 23, 42) }),
+                    );
 
-                        ui.add_space(8.0_f32);
+                    ui.add_space(8.0_f32);
 
-                        ui.label(
-                            egui::RichText::new("Diseñado y desarrollado por Guillermo Jhoel HG.")
-                                .font(egui::FontId::proportional(13.0_f32))
-                                .italics()
-                                .color(egui::Color32::from_rgb(37, 99, 235)),
-                        );
+                    ui.label(
+                        egui::RichText::new("Diseñado y desarrollado por Guillermo Jhoel HG.")
+                            .font(egui::FontId::proportional(13.0_f32))
+                            .italics()
+                            .color(egui::Color32::from_rgb(37, 99, 235)),
+                    );
 
-                        ui.add_space(12.0_f32);
+                    ui.add_space(12.0_f32);
 
-                        ui.label(
-                            egui::RichText::new(
-                                "Esta herramienta fue creada para darte velocidad, trazabilidad y control visual total sobre tus archivos. Si te es de utilidad en tu día a día, ¡te agradecería enormemente que la compartas!"
+                    ui.label(
+                        egui::RichText::new(
+                            "Esta herramienta fue creada para darte velocidad, trazabilidad y control visual total sobre tus archivos. Si te es de utilidad en tu día a día, ¡te agradecería enormemente que la compartas!"
+                        )
+                        .font(egui::FontId::proportional(13.5_f32))
+                        .color(if self.dark_mode { egui::Color32::from_rgb(203, 213, 225) } else { egui::Color32::from_rgb(71, 85, 105) }),
+                    );
+
+                    ui.add_space(20.0_f32);
+
+                    if ui
+                        .add_sized(
+                            [240.0, 42.0],
+                            egui::Button::new(
+                                egui::RichText::new("🚀 Entendido y Comenzar")
+                                    .font(egui::FontId::proportional(15.0_f32))
+                                    .strong()
+                                    .color(egui::Color32::WHITE),
                             )
-                            .font(egui::FontId::proportional(13.5_f32))
-                            .color(if self.dark_mode { egui::Color32::from_rgb(203, 213, 225) } else { egui::Color32::from_rgb(71, 85, 105) }),
-                        );
-
-                        ui.add_space(20.0_f32);
-
-                        if ui
-                            .add_sized(
-                                [240.0, 42.0],
-                                egui::Button::new(
-                                    egui::RichText::new("🚀 Entendido y Comenzar")
-                                        .font(egui::FontId::proportional(15.0_f32))
-                                        .strong()
-                                        .color(egui::Color32::WHITE),
-                                )
-                                .fill(egui::Color32::from_rgb(37, 99, 235))
-                                .rounding(21.0),
-                            )
-                            .clicked()
-                        {
-                            self.show_welcome_dialog = false;
-                        }
-                    });
+                            .fill(egui::Color32::from_rgb(37, 99, 235))
+                            .rounding(21.0),
+                        )
+                        .clicked()
+                    {
+                        self.show_welcome_dialog = false;
+                    }
                 });
-        }
+            });
     }
 
     fn render_explorer_tab(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
@@ -2007,7 +2013,7 @@ impl MerkleApp {
     }
 
     fn render_settings_tab(&mut self, ui: &mut egui::Ui) {
-        ui.heading("⚙️ Ajustes de Colores y Umbrales de Antigüedad");
+        ui.heading("⚙ Ajustes de Colores y Umbrales de Antigüedad");
         ui.separator();
         ui.add_space(12.0_f32);
 
@@ -2015,7 +2021,7 @@ impl MerkleApp {
         ui.add_space(8.0_f32);
 
         ui.horizontal(|ui| {
-            ui.label("🔴 Umbral Reciente (Horas):");
+            ui.colored_label(self.color_red, "● Umbral Reciente (Horas):");
             ui.add(egui::DragValue::new(&mut self.threshold_red_hours).clamp_range(1..=72));
             ui.color_edit_button_srgba(&mut self.color_red);
         });
@@ -2023,7 +2029,7 @@ impl MerkleApp {
         ui.add_space(8.0_f32);
 
         ui.horizontal(|ui| {
-            ui.label("🟡 Umbral Medio (Horas):");
+            ui.colored_label(self.color_yellow, "● Umbral Medio (Horas):");
             ui.add(egui::DragValue::new(&mut self.threshold_yellow_hours).clamp_range(1..=168));
             ui.color_edit_button_srgba(&mut self.color_yellow);
         });
@@ -2031,7 +2037,7 @@ impl MerkleApp {
         ui.add_space(8.0_f32);
 
         ui.horizontal(|ui| {
-            ui.label("🟢 Umbral Estable (Días):");
+            ui.colored_label(self.color_green, "● Umbral Estable (Días):");
             ui.add(egui::DragValue::new(&mut self.threshold_green_days).clamp_range(1..=365));
             ui.color_edit_button_srgba(&mut self.color_green);
         });
@@ -2039,7 +2045,7 @@ impl MerkleApp {
         ui.add_space(8.0_f32);
 
         ui.horizontal(|ui| {
-            ui.label("⚪ Archivos Antiguos:");
+            ui.colored_label(self.color_old, "● Archivos Antiguos:");
             ui.color_edit_button_srgba(&mut self.color_old);
         });
 
