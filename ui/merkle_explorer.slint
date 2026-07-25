@@ -1,0 +1,178 @@
+// Merkle Audit Explorer - Componentes Slint UI de Alta Fidelidad
+// Basado en la estética oficial Slint Dashboard (Tema Dark Neón / Notion Light)
+
+export component SlintCard inherits Rectangle {
+    in property <string> title: "Directorio";
+    in property <string> value: "12.56 KB";
+    in property <string> hash-badge: "3ed87596";
+    in property <bool> is-active: false;
+    in property <color> accent-color: #84cc16; // Neon Lime
+    
+    callback clicked();
+    
+    width: 200px;
+    height: 72px;
+    background: is-active ? #1e293b : #151c2c;
+    border-radius: 12px;
+    border-width: is-active ? 2px : 1px;
+    border-color: is-active ? accent-color : #2a364f;
+    
+    drop-shadow-blur: 8px;
+    drop-shadow-color: #00000040;
+    drop-shadow-offset-y: 3px;
+
+    VerticalLayout {
+        padding: 10px;
+        spacing: 4px;
+
+        HorizontalLayout {
+            alignment: space-between;
+
+            Text {
+                text: title;
+                font-size: 13px;
+                font-weight: 600;
+                color: #f8fafc;
+                overflow: elide;
+            }
+
+            Rectangle {
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                background: accent-color;
+            }
+        }
+
+        HorizontalLayout {
+            alignment: space-between;
+
+            Text {
+                text: value;
+                font-size: 11px;
+                color: #94a3b8;
+            }
+
+            Rectangle {
+                background: #0f172a;
+                border-radius: 4px;
+                padding-left: 6px;
+                padding-right: 6px;
+                
+                Text {
+                    text: hash-badge;
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: accent-color;
+                }
+            }
+        }
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+export component PillTab inherits Rectangle {
+    in property <string> label: "Explorador";
+    in property <bool> selected: false;
+    
+    callback clicked();
+
+    height: 32px;
+    background: selected ? #8b5cf6 : #1e293b; // Electric Purple Accent
+    border-radius: 16px;
+    padding-left: 14px;
+    padding-right: 14px;
+
+    Text {
+        text: label;
+        font-size: 12px;
+        font-weight: 600;
+        color: selected ? #ffffff : #94a3b8;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+export component DashboardHeader inherits Rectangle {
+    in property <string> root-hash: "3ed87596f6b41e8ab65de151c8918d9a4b7ed6485d0a66ce1031302e72777816";
+    in property <string> active-path: "/root/workspace";
+
+    height: 64px;
+    background: #0b0f19;
+    border-bottom-width: 1px;
+    border-color: #1e293b;
+
+    HorizontalLayout {
+        padding-left: 20px;
+        padding-right: 20px;
+        spacing: 16px;
+        alignment: space-between;
+
+        HorizontalLayout {
+            spacing: 12px;
+            alignment: center;
+
+            Text {
+                text: "❖ Merkle Explorer";
+                font-size: 18px;
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            Rectangle {
+                height: 20px;
+                width: 1px;
+                background: #334155;
+            }
+
+            Text {
+                text: "HASH: " + root-hash;
+                font-size: 11px;
+                font-weight: 600;
+                color: #84cc16; // Neon Lime Slint Accent
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: center;
+
+            PillTab { label: "🌳 Explorador"; selected: true; }
+            PillTab { label: "🔀 Diff Snapshots"; selected: false; }
+            PillTab { label: "📜 Log Auditoría"; selected: false; }
+        }
+    }
+}
+
+export component SlintExplorerApp inherits Window {
+    title: "Merkle Audit Explorer (Slint Visual Edition)";
+    preferred-width: 1280px;
+    preferred-height: 800px;
+    background: #0b0f19;
+
+    VerticalLayout {
+        DashboardHeader {}
+
+        HorizontalLayout {
+            // Main canvas view for node hierarchy
+            Rectangle {
+                background: #0b0f19;
+                
+                Text {
+                    text: "Lienzo Interactivo Merkle Tree";
+                    color: #475569;
+                    font-size: 14px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

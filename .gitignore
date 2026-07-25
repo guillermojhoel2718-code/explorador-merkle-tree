@@ -1,0 +1,13 @@
+/target
+*.log
+.DS_Store
+
+# Ignore internal Markdown specs and plans
+*.md
+!README.md
+CLAUDE.MD
+AGENTS.md
+Vision.md
+Plan zoom
+plan_implementacion_slint_egui.md
+Implementaciones nuevas.md

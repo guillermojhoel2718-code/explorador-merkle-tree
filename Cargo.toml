@@ -1,0 +1,19 @@
+[package]
+name = "Explorador_Archivos"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.27"
+egui_extras = { version = "0.27", features = ["svg", "image"] }
+notify = "6.1"
+walkdir = "2.5"
+petgraph = "0.6"
+sha2 = "0.10"
+rayon = "1.8"
+rodio = "0.17"
+rfd = "0.12"
+open = "5.1"
+blake3 = "1.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
