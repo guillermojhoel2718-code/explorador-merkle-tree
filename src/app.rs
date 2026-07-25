@@ -481,30 +481,7 @@ impl MerkleApp {
         // Draw studio background rectangle
         painter.rect_filled(rect, 0.0, bg_color);
 
-        // 2. Subtle soft volumetric light rays pierce diagonally
-        let ray_color = if dark_mode {
-            egui::Color32::from_white_alpha(7)
-        } else {
-            egui::Color32::from_white_alpha(35)
-        };
-
-        let w = rect.width();
-        let light_origin = egui::pos2(rect.max.x - w * 0.15, rect.min.y - 60.0);
-
-        for i in 0..4 {
-            let angle_offset = (i as f32) * 0.22 + (time * 0.05).sin() * 0.03;
-            let ray_p1 = egui::pos2(light_origin.x - w * (0.28 + angle_offset), rect.max.y);
-            let ray_p2 = egui::pos2(light_origin.x - w * (0.08 + angle_offset), rect.max.y);
-
-            let shape = egui::Shape::convex_polygon(
-                vec![light_origin, ray_p1, ray_p2],
-                ray_color,
-                egui::Stroke::NONE,
-            );
-            painter.add(shape);
-        }
-
-        // 3. Weightless floating 3D translucent crystal spheres & bokeh geometry (Antigravity aesthetic)
+        // 2. Weightless floating 3D translucent crystal spheres & bokeh geometry (Antigravity aesthetic)
         let sphere_positions = [
             (0.18, 0.25, 75.0, 0.35),
             (0.82, 0.20, 105.0, 0.22),
@@ -918,67 +895,71 @@ impl eframe::App for MerkleApp {
                 // Context-Sensitive Action Bar
                 match self.active_tab {
                     AppTab::Explorer => {
-                        ui.horizontal(|ui| {
-                            if ui.button("📁 Seleccionar Carpeta").clicked() {
-                                if let Some(path) = rfd::FileDialog::new().pick_folder() {
-                                    self.load_directory(path);
-                                }
-                            }
+                        egui::ScrollArea::horizontal()
+                            .id_source("explorer_toolbar_scroll")
+                            .show(ui, |ui| {
+                                ui.horizontal(|ui| {
+                                    if ui.button("📁 Seleccionar Carpeta").clicked() {
+                                        if let Some(path) = rfd::FileDialog::new().pick_folder() {
+                                            self.load_directory(path);
+                                        }
+                                    }
 
-                            if self.watcher_active {
-                                if ui.button("⏹️ Detener Monitoreo").clicked() {
-                                    self.stop_watcher();
-                                }
-                            } else if let Some(ref path) = self.current_path.clone() {
-                                if ui.button("👁️ Monitorear Cambios").clicked() {
-                                    self.start_watcher(path.clone());
-                                }
-                            }
+                                    if self.watcher_active {
+                                        if ui.button("⏹️ Detener Monitoreo").clicked() {
+                                            self.stop_watcher();
+                                        }
+                                    } else if let Some(ref path) = self.current_path.clone() {
+                                        if ui.button("👁️ Monitorear Cambios").clicked() {
+                                            self.start_watcher(path.clone());
+                                        }
+                                    }
 
-                            ui.separator();
+                                    ui.separator();
 
-                            if self.focused_root_id.is_some() {
-                                if ui.button("🏠 Raíz Principal").clicked() {
-                                    self.push_undo_snapshot("Volver a raíz principal");
-                                    self.focused_root_id = None;
-                                }
-                            }
+                                    if self.focused_root_id.is_some() {
+                                        if ui.button("🏠 Raíz Principal").clicked() {
+                                            self.push_undo_snapshot("Volver a raíz principal");
+                                            self.focused_root_id = None;
+                                        }
+                                    }
 
-                            ui.label("🔍");
-                            ui.add(
-                                egui::TextEdit::singleline(&mut self.search_query)
-                                    .hint_text("Buscar por nombre o hash...")
-                                    .desired_width(170.0_f32),
-                            );
+                                    ui.label("🔍");
+                                    ui.add(
+                                        egui::TextEdit::singleline(&mut self.search_query)
+                                            .hint_text("Buscar por nombre o hash...")
+                                            .desired_width(170.0_f32),
+                                    );
 
-                            ui.label("Tipo:");
-                            ui.add(
-                                egui::TextEdit::singleline(&mut self.filter_extension)
-                                    .hint_text("ej. pdf, rs")
-                                    .desired_width(55.0_f32),
-                            );
+                                    ui.label("Tipo:");
+                                    ui.add(
+                                        egui::TextEdit::singleline(&mut self.filter_extension)
+                                            .hint_text("ej. pdf, rs")
+                                            .desired_width(55.0_f32),
+                                    );
 
-                            ui.separator();
-                            ui.label("Modo Color:");
-                            ui.selectable_value(&mut self.color_mode, NodeColorMode::ByExtension, "🎨 Extensión");
-                            ui.selectable_value(&mut self.color_mode, NodeColorMode::ByAge, "⏳ Antigüedad");
+                                    ui.separator();
+                                    ui.label("Modo Color:");
+                                    ui.selectable_value(&mut self.color_mode, NodeColorMode::ByExtension, "🎨 Extensión");
+                                    ui.selectable_value(&mut self.color_mode, NodeColorMode::ByAge, "⏳ Antigüedad");
 
-                            if ui.button("🎯 Reset Cam").clicked() {
-                                self.push_undo_snapshot("Reset Cámara");
-                                self.zoom_scale = 1.0_f32;
-                                self.pan_offset = egui::Vec2::ZERO;
-                                self.custom_node_positions.clear();
-                                self.set_notification("🎯 Cámara y posiciones reubicadas".to_string());
-                            }
+                                    if ui.button("🎯 Reset Cam").clicked() {
+                                        self.push_undo_snapshot("Reset Cámara");
+                                        self.zoom_scale = 1.0_f32;
+                                        self.pan_offset = egui::Vec2::ZERO;
+                                        self.custom_node_positions.clear();
+                                        self.set_notification("🎯 Cámara y posiciones reubicadas".to_string());
+                                    }
 
-                            ui.separator();
+                                    ui.separator();
 
-                            ui.label("⚡ Vel. Desplazamiento:");
-                            ui.add_sized([75.0, 20.0], egui::Slider::new(&mut self.pan_speed_mult, 0.5_f32..=6.0_f32).text("x"));
+                                    ui.label("⚡ Vel. Desplazamiento:");
+                                    ui.add_sized([75.0, 20.0], egui::Slider::new(&mut self.pan_speed_mult, 0.5_f32..=6.0_f32).text("x"));
 
-                            ui.label("🔍 Vel. Zoom:");
-                            ui.add_sized([85.0, 20.0], egui::Slider::new(&mut self.zoom_speed_factor, 1.01_f32..=1.12_f32));
-                        });
+                                    ui.label("🔍 Vel. Zoom:");
+                                    ui.add_sized([85.0, 20.0], egui::Slider::new(&mut self.zoom_speed_factor, 1.01_f32..=1.12_f32));
+                                });
+                            });
                     }
                     AppTab::Traceability => {
                         ui.horizontal(|ui| {
